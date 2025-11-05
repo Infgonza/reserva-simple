@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Data
@@ -15,6 +16,11 @@ public class ClienteResponseDTO {
     private String telefono;
     private String email;
     private String notas;
+
+    // Estadísticas del cliente
+    private Integer cantidadTurnos;
+    private Instant fechaPrimerTurno;
+    private Instant fechaUltimoTurno;
 
     // Metadata
     private LocalDateTime createdAt;
