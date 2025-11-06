@@ -1,7 +1,7 @@
 package com.rs.reserva_simple.persistance.dto.response;
 
 import com.rs.reserva_simple.persistance.dto.response.basic.ServicioBasicDTO;
-import com.rs.reserva_simple.persistance.dto.response.basic.UsuarioBasicDTO;
+import com.rs.reserva_simple.persistance.entity.enums.RolPlataforma;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,26 +15,38 @@ import java.util.List;
 public class NegocioResponseDTO{
 
     private Long id;
+    private String email;
+    private RolPlataforma rolPlataforma;
+
+    // DATOS DEL NEGOCIO
     private String nombre;
     private String slug;
     private String direccion;
     private String telefono;
-    private String email;
+    private String descripcion;
+    private String profileImageUrl;
     private Boolean activo;
 
-    // Metadata
+    // METADATA
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Long version;
 
-    // Propietario como objeto anidado básico
-    private UsuarioBasicDTO propietario;
+    // RELACIONES
 
-    // Servicios completos (lista pequeña, información crítica)
+    /**
+     * Servicios del negocio
+     */
     private List<ServicioBasicDTO> servicios;
 
-    // Solo IDs para colecciones grandes
+    /**
+     * IDs de los empleados (UsuarioNegocio)
+     */
     private List<Long> empleadosIds;
+
+    /**
+     * Contadores de estadísticas
+     */
     private Integer totalTurnos;
     private Integer totalClientes;
 }

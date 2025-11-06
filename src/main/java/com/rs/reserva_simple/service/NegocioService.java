@@ -5,63 +5,84 @@ import com.rs.reserva_simple.mapper.NegocioMapper;
 import com.rs.reserva_simple.persistance.dto.request.NegocioRequestDTO;
 import com.rs.reserva_simple.persistance.dto.response.NegocioResponseDTO;
 import com.rs.reserva_simple.persistance.entity.Negocio;
-import com.rs.reserva_simple.persistance.entity.Usuario;
+import com.rs.reserva_simple.persistance.entity.enums.RolPlataforma;
 import com.rs.reserva_simple.persistance.repository.NegocioRepository;
-import com.rs.reserva_simple.persistance.repository.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * Servicio para operaciones CRUD de Negocios.
+ * Maneja la lógica de negocio, validaciones y seguridad.
+ */
 @Service
 @RequiredArgsConstructor
 public class NegocioService {
 
     private final NegocioRepository negocioRepository;
     private final NegocioMapper negocioMapper;
-    private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
     /**
-     * Busca todos los negocios
-     * @return Lista de NegocioResponseDTO
+     * Busca todos los negocios (admin)
      */
     @Transactional(readOnly = true)
-    public List<NegocioResponseDTO> findAll (){
-
+    public List<NegocioResponseDTO> findAll() {
         List<Negocio> negocios = negocioRepository.findAll();
-
-        return negocios.stream().map(negocioMapper::toResponseDTO).toList();
+        return negocios.stream()
+                .map(negocioMapper::toResponseDTO)
+                .toList();
     }
 
     /**
      * Busca un negocio por ID
+     *
      * @param id ID del negocio
-     * @throws EntityNotFoundException si no se encuentra el negocio
      * @return NegocioResponseDTO
+     * @throws EntityNotFoundException si no se encuentra el negocio
      */
     @Transactional(readOnly = true)
-    public NegocioResponseDTO findById(Long id){
+    public NegocioResponseDTO findById(Long id) {
         Negocio negocio = negocioRepository.findById(id)
-                .orElseThrow(()-> new EntityNotFoundException("Negocio no encontrado con id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Negocio no encontrado con id: " + id
+                ));
         return negocioMapper.toResponseDTO(negocio);
     }
 
     /**
+     * Crea un nuevo negocio (registro).
+     * Asigna automáticamente el rol PROPIETARIO y hashea la contraseña.
      *
-     * @param idUsuario ID del usuario propietario del negocio
      * @param dto Datos del negocio a crear
-     * @throws EntityNotFoundException si no se encuentra el usuario propietario
      * @return NegocioResponseDTO del negocio creado
+     * @throws IllegalArgumentException si el email ya está registrado
      */
     @Transactional
-    public NegocioResponseDTO create(Long idUsuario, NegocioRequestDTO dto){
+    public NegocioResponseDTO create(NegocioRequestDTO dto) {
+        if (negocioRepository.findByEmail(dto.getEmail()).isPresent()) {
+            throw new IllegalArgumentException(
+                    "Ya existe un negocio registrado con el email: " + dto.getEmail()
+            );
+        }
 
-        Usuario propietario = usuarioRepository.findById(idUsuario)
-                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con id: " + idUsuario));
+        if (negocioRepository.findBySlug(dto.getSlug()).isPresent()) {
+            throw new IllegalArgumentException(
+                    "Ya existe un negocio con el slug: " + dto.getSlug()
+            );
+        }
+
         Negocio negocio = negocioMapper.toEntity(dto);
-        negocio.setPropietario(propietario);
+
+        negocio.setPassword(passwordEncoder.encode(dto.getPassword()));
+
+        negocio.setRolPlataforma(RolPlataforma.USUARIO);
+
+        negocio.setActivo(true);
 
         Negocio savedNegocio = negocioRepository.save(negocio);
 
@@ -69,28 +90,54 @@ public class NegocioService {
     }
 
     /**
+     * Actualiza un negocio existente
+     * Solo actualiza campos permitidos (no cambia email ni contraseña)
      *
-     * @param idUsuario ID del usuario propietario del negocio
-     * @param idNegocio ID del negocio a actualizar
-     * @param dto Datos del negocio a actualizar
-     * @throws EntityNotFoundException si no se encuentra el usuario propietario o el negocio
-     * @throws IllegalArgumentException si el usuario no es el propietario del negocio
+     * @param id ID del negocio a actualizar
+     * @param dto Datos actualizados
      * @return NegocioResponseDTO del negocio actualizado
+     * @throws EntityNotFoundException si no se encuentra el negocio
      */
     @Transactional
-    public NegocioResponseDTO update(Long idUsuario, Long idNegocio, NegocioRequestDTO dto){
-        Usuario propietario = usuarioRepository.findById(idUsuario)
-                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado con id: " + idUsuario));
-        Negocio negocio = negocioRepository.findById(idNegocio)
-                .orElseThrow(()-> new EntityNotFoundException("Negocio no encontrado con id: " + idNegocio));
-        if(!negocio.getPropietario().getId().equals(propietario.getId())) {
-            throw new IllegalArgumentException("El usuario no es el propietario del negocio");
+    public NegocioResponseDTO update(Long id, NegocioRequestDTO dto) {
+        Negocio negocio = negocioRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Negocio no encontrado con id: " + id
+                ));
+
+        if (!negocio.getSlug().equals(dto.getSlug()) &&
+                negocioRepository.findBySlug(dto.getSlug()).isPresent()) {
+            throw new IllegalArgumentException(
+                    "Ya existe un negocio con el slug: " + dto.getSlug()
+            );
         }
+
         negocioMapper.updateEntityFromDTO(dto, negocio);
 
+        // Hasheamos la contraseña si viene
+        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+            negocio.setPassword(passwordEncoder.encode(dto.getPassword()));
+        }
+
         Negocio updatedNegocio = negocioRepository.save(negocio);
+
         return negocioMapper.toResponseDTO(updatedNegocio);
     }
 
-    //TODO funcion para borrar un negocio (borrado lógico)
+    /**
+     * Desactiva un negocio (borrado lógico).
+     *
+     * @param id ID del negocio a desactivar
+     * @throws EntityNotFoundException si no se encuentra el negocio
+     */
+    @Transactional
+    public void delete(Long id) {
+        Negocio negocio = negocioRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Negocio no encontrado con id: " + id
+                ));
+
+        negocio.setActivo(false);
+        negocioRepository.save(negocio);
+    }
 }

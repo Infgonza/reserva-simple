@@ -15,24 +15,49 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(name = "usuario_negocio")
 public class UsuarioNegocio extends BaseEntity{
 
-    @ManyToOne
-    @JoinColumn(name = "usuario_id")
-    private Usuario usuario;
+    @Column(nullable = false)
+    private String nombre;
 
-    @ManyToOne
-    @JoinColumn(name = "negocio_id")
-    private Negocio negocio;
+    @Column(nullable = false)
+    private String email;
+
+    private String telefono;
+
+    private String password;
+
+    // ROL Y ESTADO
 
     @Enumerated(EnumType.STRING)
-    private RolNegocio rolNegocio;
+    @Column(nullable = false)
+    private RolNegocio rolNegocio = RolNegocio.EMPLEADO; // Siempre EMPLEADO
 
-    private Boolean activo;
+    @Column(nullable = false)
+    private Boolean activo = true;
 
-    @OneToMany(mappedBy = "usuarioNegocio",
+    // RELACIONES
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "negocio_id", nullable = false)
+    private Negocio negocio;
+
+    @OneToMany(
+            mappedBy = "usuarioNegocio",
             cascade = CascadeType.ALL,
             orphanRemoval = true,
-            fetch = FetchType.LAZY)
+            fetch = FetchType.LAZY
+    )
     private List<Turno> turnos = new ArrayList<>();
+
+    // MÉTODOS DE UTILIDAD
+
+    public boolean isActivo() {
+        return this.activo;
+    }
+
+    public String getNombreNegocio() {
+        return this.negocio != null ? this.negocio.getNombre() : null;
+    }
 }

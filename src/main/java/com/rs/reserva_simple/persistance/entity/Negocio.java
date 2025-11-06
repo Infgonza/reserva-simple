@@ -1,5 +1,6 @@
 package com.rs.reserva_simple.persistance.entity;
 
+import com.rs.reserva_simple.persistance.entity.enums.RolPlataforma;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,16 +17,33 @@ import java.util.List;
 @Entity
 public class Negocio extends BaseEntity{
 
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    @Column(nullable = false)
+    private String password;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "rol_plataforma", nullable = false)
+    private RolPlataforma rolPlataforma = RolPlataforma.USUARIO;
+
+    // CAMPOS DE INFORMACIÓN DEL NEGOCIO
+
+    @Column(nullable = false)
     private String nombre;
+
+    @Column(nullable = false, unique = true)
     private String slug;
+
     private String direccion;
     private String telefono;
-    private String email;
-    private Boolean activo;
+    private String descripcion; // Campo extra integrado desde Usuario
+    private String profileImageUrl; // Campo extra integrado desde Usuario
 
-    @ManyToOne
-    @JoinColumn(name = "usuario_id")
-    private Usuario propietario;
+    @Column(nullable = false)
+    private Boolean activo = true;
+
+    // RELACIONES
 
     @OneToMany(
             mappedBy = "negocio",
@@ -35,22 +53,27 @@ public class Negocio extends BaseEntity{
     )
     private List<Servicio> servicios = new ArrayList<>();
 
-    @OneToMany(mappedBy = "negocio",
+    @OneToMany(
+            mappedBy = "negocio",
             cascade = CascadeType.ALL,
             orphanRemoval = true,
-            fetch = FetchType.LAZY)
+            fetch = FetchType.LAZY
+    )
     private List<UsuarioNegocio> empleados = new ArrayList<>();
 
-    @OneToMany(mappedBy = "negocio",
+    @OneToMany(
+            mappedBy = "negocio",
             cascade = CascadeType.ALL,
             orphanRemoval = true,
-            fetch = FetchType.LAZY)
+            fetch = FetchType.LAZY
+    )
     private List<Turno> turnos = new ArrayList<>();
 
-    @OneToMany(mappedBy = "negocio",
+    @OneToMany(
+            mappedBy = "negocio",
             cascade = CascadeType.ALL,
             orphanRemoval = true,
-            fetch = FetchType.LAZY)
+            fetch = FetchType.LAZY
+    )
     private List<Cliente> clientes = new ArrayList<>();
-
 }

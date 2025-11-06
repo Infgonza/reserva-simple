@@ -1,7 +1,5 @@
 package com.rs.reserva_simple.persistance.dto.response;
 
-import com.rs.reserva_simple.persistance.dto.response.basic.NegocioBasicDTO;
-import com.rs.reserva_simple.persistance.dto.response.basic.UsuarioBasicDTO;
 import com.rs.reserva_simple.persistance.entity.enums.RolNegocio;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,18 +11,18 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UsuarioNegocioResponseDTO {
+
     private Long id;
-    private RolNegocio rolNegocio;
+    private String nombre;
+    private String email;
+    private String telefono;
+    private RolNegocio rolNegocio; // Siempre EMPLEADO
     private Boolean activo;
 
-    // Metadata
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Long version;
 
-    // Información básica del usuario
-    private UsuarioBasicDTO usuario;
 
-    // Información básica del negocio
-    private NegocioBasicDTO negocio;
+    private Long negocioId;
 }
