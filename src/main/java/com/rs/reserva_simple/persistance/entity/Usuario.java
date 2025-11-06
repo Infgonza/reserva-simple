@@ -19,7 +19,7 @@ import java.util.List;
 public class Usuario extends BaseEntity {
 
     private String email;
-    private String contraseña;
+    private String password;
     private String nombre;
     private String telefono;
     @Enumerated(EnumType.STRING)

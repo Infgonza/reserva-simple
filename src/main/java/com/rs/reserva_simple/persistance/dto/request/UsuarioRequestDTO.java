@@ -1,9 +1,8 @@
 package com.rs.reserva_simple.persistance.dto.request;
 
-import com.rs.reserva_simple.persistance.entity.enums.RolPlataforma;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,7 +20,7 @@ public class UsuarioRequestDTO {
 
     @NotBlank(message = "La contraseña es obligatoria")
     @Size(min = 8, max = 100, message = "La contraseña debe tener entre 8 y 100 caracteres")
-    private String contraseña;
+    private String password;
 
     @NotBlank(message = "El nombre es obligatorio")
     @Size(max = 255, message = "El nombre no puede exceder 255 caracteres")
@@ -30,6 +29,4 @@ public class UsuarioRequestDTO {
     @Size(max = 20, message = "El teléfono no puede exceder 20 caracteres")
     private String telefono;
 
-    @NotNull(message = "El rol de plataforma es obligatorio")
-    private RolPlataforma rolPlataforma;
 }

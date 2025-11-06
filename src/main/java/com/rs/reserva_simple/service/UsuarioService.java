@@ -4,9 +4,12 @@ import com.rs.reserva_simple.mapper.UsuarioMapper;
 import com.rs.reserva_simple.persistance.dto.request.UsuarioRequestDTO;
 import com.rs.reserva_simple.persistance.dto.response.UsuarioResponseDTO;
 import com.rs.reserva_simple.persistance.entity.Usuario;
+import com.rs.reserva_simple.persistance.entity.enums.RolPlataforma;
 import com.rs.reserva_simple.persistance.repository.UsuarioRepository;
+import com.rs.reserva_simple.security.jwt.JwtUtilsService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +21,8 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final UsuarioMapper usuarioMapper;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtilsService jwtUtilsService;
 
     @Transactional(readOnly = true)
     public List<UsuarioResponseDTO> findAll(){
@@ -35,7 +40,16 @@ public class UsuarioService {
     }
 
     public UsuarioResponseDTO create(UsuarioRequestDTO dto){
-        Usuario usuario = usuarioRepository.save(usuarioMapper.toEntity(dto));
+
+        if (usuarioRepository.findByEmail(dto.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Ya hay un usuario registrado con ese email");
+        }
+        dto.setPassword(passwordEncoder.encode(dto.getPassword()));
+        Usuario usuario = usuarioMapper.toEntity(dto);
+        usuario.setRolPlataforma(RolPlataforma.USUARIO);
+
+        usuarioRepository.save(usuario);
+
         return usuarioMapper.toResponseDTO(usuario);
     }
 
@@ -52,7 +66,6 @@ public class UsuarioService {
         return usuarioMapper.toResponseDTO(usuarioActualizado);
     }
 
-    // TODO funcion para login (email + contraseña)
 
     // TODO Cambiar para borrado lógico
     public void delete(Long id) {
