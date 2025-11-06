@@ -1,10 +1,10 @@
 package com.rs.reserva_simple.mapper;
 
-import com.rs.reserva_simple.persistance.dto.request.UsuarioRequestDTO;
-import com.rs.reserva_simple.persistance.dto.response.UsuarioResponseDTO;
-import com.rs.reserva_simple.persistance.dto.response.basic.UsuarioBasicDTO;
+import com.rs.reserva_simple.persistance.dto.request.NegocioRequestDTO;
+import com.rs.reserva_simple.persistance.dto.response.NegocioResponseDTO;
+import com.rs.reserva_simple.persistance.dto.response.basic.NegocioBasicDTO;
 import com.rs.reserva_simple.persistance.entity.Negocio;
-import com.rs.reserva_simple.persistance.entity.Usuario;
+import com.rs.reserva_simple.persistance.entity.UsuarioNegocio;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -16,51 +16,62 @@ import java.util.stream.Collectors;
 /**
  * Mapper para convertir entre entidad Negocio y sus DTO
  */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {ServicioMapper.class, UsuarioMapper.class})
 public interface NegocioMapper {
 
     /**
-     * Convierte UsuarioRequestDTO a entidad Usuario
+     * Convierte NegocioRequestDTO a entidad Negocio
      */
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "version", ignore = true)
-    @Mapping(target = "negocios", ignore = true)
-    @Mapping(target = "trabaja", ignore = true)
-    Usuario toEntity(UsuarioRequestDTO dto);
+    @Mapping(target = "propietario", ignore = true)
+    @Mapping(target = "servicios", ignore = true)
+    @Mapping(target = "empleados", ignore = true)
+    @Mapping(target = "turnos", ignore = true)
+    @Mapping(target = "clientes", ignore = true)
+    Negocio toEntity(NegocioRequestDTO dto);
 
     /**
-     * Convierte entidad Usuario a UsuarioResponseDTO
-     * negociosIds se mapea extrayendo los IDs de la colección de negocios
+     * Convierte entidad Negocio a NegocioResponseDTO
      */
-    @Mapping(target = "negociosIds", source = "negocios", qualifiedByName = "negociosToIds")
-    UsuarioResponseDTO toResponseDTO(Usuario entity);
-
-
+    @Mapping(target = "propietario", source = "propietario")
+    @Mapping(target = "servicios", source = "servicios")
+    @Mapping(target = "empleadosIds", source = "empleados", qualifiedByName = "empleadosToIds")
+    @Mapping(target = "totalTurnos", expression = "java(entity.getTurnos() != null ? entity.getTurnos().size() : 0)")
+    @Mapping(target = "totalClientes", expression = "java(entity.getClientes() != null ? entity.getClientes().size() : 0)")
+    NegocioResponseDTO toResponseDTO(Negocio entity);
 
     /**
-     * Actualiza una entidad Usuario existente con datos del RequestDTO
-     * Se ignoran campos que no deben ser actualizados por el usuario
+     * Convierte entidad Negocio a NegocioBasicDTO
+     */
+    NegocioBasicDTO toBasicDTO(Negocio entity);
+
+    /**
+     * Actualiza una entidad Negocio existente con datos del RequestDTO
      */
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "version", ignore = true)
-    @Mapping(target = "negocios", ignore = true)
-    @Mapping(target = "trabaja", ignore = true)
-    void updateEntityFromDTO(UsuarioRequestDTO dto, @MappingTarget Usuario entity);
+    @Mapping(target = "propietario", ignore = true)
+    @Mapping(target = "servicios", ignore = true)
+    @Mapping(target = "empleados", ignore = true)
+    @Mapping(target = "turnos", ignore = true)
+    @Mapping(target = "clientes", ignore = true)
+    void updateEntityFromDTO(NegocioRequestDTO dto, @MappingTarget Negocio entity);
 
     /**
-     * Método auxiliar para extraer IDs de una lista de Negocios
+     * Método auxiliar para extraer IDs de empleados (UsuarioNegocio)
      */
-    @Named("negociosToIds")
-    default List<Long> negociosToIds(List<Negocio> negocios) {
-        if (negocios == null) {
+    @Named("empleadosToIds")
+    default List<Long> empleadosToIds(List<UsuarioNegocio> empleados) {
+        if (empleados == null) {
             return null;
         }
-        return negocios.stream()
-                .map(Negocio::getId)
+        return empleados.stream()
+                .map(UsuarioNegocio::getId)
                 .collect(Collectors.toList());
     }
 }
