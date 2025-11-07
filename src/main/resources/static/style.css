@@ -1,0 +1,389 @@
+/* Variables de color */
+:root {
+    --dark-bg: #1e1e1e;
+    --light-text: #e0e0e0;
+    --placeholder-text: #a0a0a0;
+    --primary-blue: #007bff; /* Ajusta a tu CustomBlue */
+    --selected-day-bg: #4caf50; /* Verde */
+    --selected-time-bg: #007bff; /* Azul */
+    --card-bg: #333;
+    --border-color: #555;
+    --input-bg: #444;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--dark-bg);
+    color: var(--light-text);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+    box-sizing: border-box;
+    align-items: flex-start;  
+    flex-direction: column;
+}
+
+.container {
+    background-color: #2a2a2a; /* Fondo más claro que el body */
+    border-radius: 12px;
+    padding: 30px 20px;
+    max-width: 1200px; /* Ancho máximo para móvil */
+    height: auto;
+    width: 100%;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    box-sizing: border-box;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Header del Perfil */
+.profile-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.profile-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--primary-blue);
+    margin-bottom: 10px;
+}
+
+.business-name {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--light-text);
+    margin-bottom: 20px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--border-color);
+    text-align: center;
+}
+
+/* Secciones del Formulario */
+.form-section {
+    margin-bottom: 25px;
+    opacity: 1; /* Por defecto visible, JS ocultará */
+    transition: opacity 0.3s ease-in-out, max-height 0.5s ease-out;
+    max-height: 2000px; /* Altura máxima para mostrar */
+    overflow: hidden; /* Para ocultar el contenido fluidamente */
+}
+
+.form-section.hidden {
+    opacity: 0;
+    max-height: 0; /* Oculta completamente la sección */
+    margin-bottom: 0; /* Elimina el margen si está oculto */
+    pointer-events: none; /* Deshabilita interacciones */
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--light-text);
+}
+
+/* Estilos para Selects e Inputs */
+.select-wrapper {
+    position: relative;
+    background-color: var(--input-bg);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+select, input[type="text"], input[type="email"], input[type="tel"] {
+    width: 100%;
+    padding: 12px 15px;
+    background-color: var(--light-text);;
+    border: none;
+    border-radius: 8px;
+    color: var(--dark-bg);;
+    font-size: 16px;
+    box-sizing: border-box;
+    -webkit-appearance: none; /* Elimina estilos nativos en iOS/Safari */
+    -moz-appearance: none; /* Elimina estilos nativos en Firefox */
+    appearance: none; /* Elimina estilos nativos */
+}
+
+select:focus, input:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.3);
+}
+
+select option {
+    background-color: var(--input-bg); /* Fondo de las opciones del select */
+    color: white;
+}
+
+/* Estilos específicos para el calendario */
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    background-color: var(--input-bg);
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.nav-arrow {
+    cursor: pointer;
+    font-size: 24px;
+    color: var(--primary-blue);
+    user-select: none;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.calendar-grid span {
+    padding: 10px 5px; /* Ajustado para móviles */
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: var(--input-bg);
+    transition: background-color 0.2s ease;
+    font-size: 14px;
+    user-select: none;
+}
+
+.calendar-grid .day-label {
+    font-weight: 700;
+    color: var(--placeholder-text);
+    background-color: transparent;
+    cursor: default;
+}
+
+.calendar-grid .day-disabled {
+    color: var(--placeholder-text);
+    cursor: not-allowed;
+    background-color: #383838;
+}
+
+.calendar-grid .day-available:hover {
+    background-color: #555;
+}
+
+.calendar-grid .day-selected {
+    background-color: var(--selected-day-bg);
+    color: var(--dark-bg);
+    font-weight: 700;
+}
+.calendar-grid .day-today {
+    border: 1px solid var(--primary-blue);
+}
+
+/* Estilos para la cuadrícula de horarios */
+.time-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 columnas para móvil */
+    gap: 10px;
+    margin-bottom: 40px;
+}
+
+.time-slot {
+    padding: 15px 13px;
+    background-color: var(--input-bg);
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-size: 14px;
+    user-select: none;
+}
+
+.time-slot:hover {
+    background-color: #555;
+}
+
+.time-slot.selected {
+    background-color: var(--selected-time-bg);
+    color: var(--light-text);
+    font-weight: 600;
+}
+
+.time-slot.disabled {
+    background-color: #383838;
+    color: var(--placeholder-text);
+    cursor: not-allowed;
+}
+
+.done-button {
+    width: 100%;
+    padding: 12px 20px;
+    background-color: var(--primary-blue);
+    color: var(--light-text);
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.done-button:hover {
+    background-color: #0056b3;
+}
+
+/* Método de Pago */
+.payment-method {
+    background-color: var(--input-bg);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.payment-method input[type="radio"] {
+    /* Ocultar el radio button nativo */
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.payment-method label {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    cursor: pointer;
+    margin-bottom: 0; /* Resetea el margen por defecto de label */
+    padding-left: 30px; /* Espacio para el custom radio */
+    position: relative;
+}
+
+.payment-method .text-group {
+    display: flex;
+    flex-direction: column; /* Apila el span y el small */
+    justify-content: center; /* Alineación vertical interna */
+    margin-left: 10px; /* Separación respecto al ícono de efectivo */
+}
+
+.payment-method label::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--primary-blue);
+    border-radius: 50%;
+    background-color: var(--input-bg);
+    transition: all 0.2s ease-in-out;
+}
+
+.payment-method input[type="radio"]:checked + label::after {
+    content: '';
+    position: absolute;
+    left: 7px; /* Centrar el punto */
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10px;
+    height: 10px;
+    background-color: var(--primary-blue);
+    border-radius: 50%;
+}
+
+.payment-method img {
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.payment-method span {
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--light-text);
+}
+
+.payment-method small {
+    display: block;
+    font-size: 12px;
+    color: var(--placeholder-text);
+    margin-left: 10px;
+}
+
+/* Botón de Confirmar */
+.confirm-button {
+    width: 100%;
+    padding: 15px 20px;
+    background-color: var(--primary-blue);
+    color: var(--light-text);
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.confirm-button:hover {
+    background-color: #0056b3;
+}
+
+.confirm-button.hidden {
+    display: none; /* Oculta el botón completamente */
+}
+
+
+/* Responsive para Desktop */
+@media (min-width: 768px) {
+    .container {
+        max-width: 700px; /* Más ancho en desktop */
+        padding: 40px;
+    }
+
+    .business-name {
+        font-size: 32px;
+    }
+
+    .calendar-grid {
+        gap: 10px;
+    }
+
+    .calendar-grid span {
+        padding: 12px 8px;
+        font-size: 15px;
+    }
+
+    .time-grid {
+        grid-template-columns: repeat(4, 1fr); /* Más columnas para horarios */
+        gap: 12px;
+    }
+
+    .time-slot {
+        padding: 14px 10px;
+        font-size: 15px;
+    }
+    
+    .payment-method label {
+        flex-direction: row; /* Vuelve a fila para el texto y el small */
+        align-items: center;
+    }
+    .payment-method span {
+        display: inline;
+        margin-right: 10px;
+    }
+    .payment-method small {
+        display: inline;
+        margin-left: 0;
+    }
+}

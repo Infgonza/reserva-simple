@@ -116,4 +116,13 @@ public class ServicioService {
         servicio.setActivo(false);
         servicioRepository.delete(servicio);
     }
+
+    @Transactional(readOnly = true)
+    public List<ServicioResponseDTO> findAllBySlug(String negocioSlug) {
+        Negocio negocio = negocioRepository.findBySlug(negocioSlug)
+                .orElseThrow(() -> new EntityNotFoundException("Negocio no encontrado con slug: " + negocioSlug));
+
+        // Reutiliza la lógica de búsqueda por ID
+        return findAllByNegocio(negocio.getId());
+    }
 }
