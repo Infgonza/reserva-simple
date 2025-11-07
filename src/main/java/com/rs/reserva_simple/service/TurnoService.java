@@ -11,13 +11,10 @@ import jakarta.persistence.EntityNotFoundException;
 
 import com.rs.reserva_simple.mapper.UsuarioNegocioMapper;
 import com.rs.reserva_simple.persistance.dto.request.TurnoRequestDTO;
-import com.rs.reserva_simple.persistance.dto.response.TurnoResponseDTO;
 import com.rs.reserva_simple.persistance.dto.response.basic.EmpleadoBasicDTO;
 import com.rs.reserva_simple.persistance.entity.*;
 import com.rs.reserva_simple.persistance.entity.enums.Estado;
 import com.rs.reserva_simple.persistance.repository.*;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional; 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -35,10 +31,12 @@ public class TurnoService {
 
     private final TurnoRepository turnoRepository;
     private final TurnoMapper turnoMapper;
-    private final NegocioRepository negocioRepository; // Por las dudas
-    private final ServicioRepository servicioRepository; // Por las dudas
-    //private final ClienteRepository clienteRepository; //
-
+    private final NegocioRepository negocioRepository;
+    private final ServicioRepository servicioRepository;
+    private final ClienteMapper clienteMapper;
+    private final ClienteRepository clienteRepository;
+    private final UsuarioNegocioRepository usuarioNegocioRepository;
+    private final UsuarioNegocioMapper usuarioNegocioMapper;
 
     /**
      * Obtiene un turno por ID y verifica que pertenece al negocio que lo busco
@@ -76,30 +74,19 @@ public class TurnoService {
         turnoRepository.delete(turno);
     }
 
-
-
-    private final NegocioRepository negocioRepository;
-    private final ServicioRepository servicioRepository;
-    private final ClienteMapper clienteMapper;
-    private final ClienteRepository clienteRepository;
-    private final UsuarioNegocioRepository usuarioNegocioRepository;
-    private final UsuarioNegocioMapper usuarioNegocioMapper;
-
     /**
      * Obtiene todos los empleados activos del negocio asociado al servicio.
      * @param servicioId ID del servicio seleccionado.
      * @return Lista de EmpleadoBasicDTO.
      * @throws EntityNotFoundException si el servicio no existe.
      */
-    @Transactional
+    @Transactional(readOnly = true)
     public List<EmpleadoBasicDTO> getActiveEmployeesByService(Long servicioId) {
-        // 1. Obtener el servicio para encontrar su negocioId
         Servicio servicio = servicioRepository.findById(servicioId)
                 .orElseThrow(() -> new EntityNotFoundException("Servicio no encontrado con ID: " + servicioId));
 
         Long negocioId = servicio.getNegocio().getId();
 
-        // 2. Obtener todos los empleados activos de ese negocio
         List<UsuarioNegocio> empleados = usuarioNegocioRepository.findByNegocioIdAndActivoTrue(negocioId);
 
         return empleados.stream()
@@ -113,7 +100,7 @@ public class TurnoService {
      * @param empleadoId ID del empleado
      * @return Lista de turnos
      */
-    @Transactional
+    @Transactional(readOnly = true)
     public List<TurnoResponseDTO> getTurnosByFechaYEmpleado(LocalDate fecha, Long empleadoId) {
         List<Turno> turnos = turnoRepository.findByFechaTurnoAndUsuarioNegocioId(fecha, empleadoId);
 
@@ -126,7 +113,6 @@ public class TurnoService {
     public TurnoResponseDTO create(String negocioSlug, TurnoRequestDTO requestDTO) {
         Cliente cliente;
 
-        // Buscar por Email O Teléfono para reutilizar el cliente existente
         Optional<Cliente> existingCliente = clienteRepository.findByEmailOrTelefono(
                 requestDTO.getCliente().getEmail(),
                 requestDTO.getCliente().getTelefono()
@@ -139,15 +125,12 @@ public class TurnoService {
             cliente = clienteMapper.toEntity(requestDTO.getCliente());
         }
 
-        // Obtener Negocio
         Negocio negocio = negocioRepository.findBySlug(negocioSlug)
                 .orElseThrow(() -> new EntityNotFoundException("Negocio no encontrado con slug: " + negocioSlug));
 
-        // Obtener Servicio
         Servicio servicio = servicioRepository.findById(requestDTO.getServicioId())
                 .orElseThrow(() -> new EntityNotFoundException("Servicio no encontrado con ID: " + requestDTO.getServicioId()));
 
-        // Obtener empleado
         UsuarioNegocio empleado = null;
         if (requestDTO.getUsuarioNegocioId() != null) {
             empleado = usuarioNegocioRepository.findById(requestDTO.getUsuarioNegocioId())
