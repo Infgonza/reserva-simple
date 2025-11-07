@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservar Turno</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="profile-header">
+            <img src="images/shop.jpg" alt="Foto de Perfil del Negocio" class="profile-image" id="businessImage">
+            
+            <h1 class="business-name" id="businessName">Cargando Negocio...</h1> 
+        </div>
+
+        <form id="bookingForm">
+            
+            <div class="form-section visible" id="section-service">
+                <label for="service">Servicio</label>
+                <div class="select-wrapper">
+                    <select id="service" name="service">
+                        <option value="">Selecciona un servicio</option>
+                        </select>
+                </div>
+            </div>
+
+            <div class="form-section hidden" id="section-professional">
+                <label for="professional">Profesional</label>
+                <div class="select-wrapper">
+                    <select id="professional" name="professional">
+                        <option value="">Selecciona un profesional</option>
+                        </select>
+                </div>
+            </div>
+
+            <div class="form-section hidden" id="section-datetime">
+                <label>Elige fecha y hora</label>
+                <div class="calendar-header">
+                    <span class="nav-arrow" id="prevMonth">&lt;</span>
+                    <span id="currentMonthYear">Noviembre 2025</span>
+                    <span class="nav-arrow" id="nextMonth">&gt;</span>
+                </div>
+                <div class="calendar-grid" id="calendarGrid">
+                    </div>
+                <div class="time-grid" id="timeGrid">
+                    </div>
+            </div>
+
+            <div class="form-section hidden" id="section-payment">
+                <label>Método de pago</label>
+                <div class="payment-method">
+                    <input type="radio" id="payment-cash" name="paymentMethod" value="cash" checked>
+                    <label for="payment-cash">
+                        <img src="images/icons8-efectivo-48.png" alt="Icono Efectivo">
+                        <span>Pago Presencial / Efectivo</span>
+                        <small>Paga en efectivo al finalizar tu servicio</small>
+                    </label>
+                </div>
+            </div>
+
+            <div id="section-personal-info" class="form-section hidden">
+
+                <div class="personal-field-group"> 
+                    <label for="fullName">Nombre completo</label>
+                    <input type="text" id="fullName" name="fullName" placeholder="Ingresa tu nombre">
+                </div>
+
+                <div class="personal-field-group"> 
+                    <label for="email">Correo electrónico</label>
+                    <input type="email" id="email" name="email" placeholder="correo@ejemplo.com">
+                </div>
+
+                <div class="personal-field-group"> 
+                    <label for="phone">Teléfono celular</label>
+                    <input type="tel" id="phone" name="phone" placeholder="Tu número de contacto">
+                </div>
+                
+            </div>
+
+            <button type="submit" class="confirm-button hidden" id="confirmButton">Confirmar Reserva</button>
+        </form>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
