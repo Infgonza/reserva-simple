@@ -27,7 +27,7 @@ public class ServicioController {
      * @return Lista de servicios en formato DTO.
      */
     @GetMapping
-    public ResponseEntity<List<ServicioResponseDTO>> getAllByNegocio(
+    public ResponseEntity<List<ServicioResponseDTO>> getAllServices(
             @AuthenticationPrincipal CustomUserDetails userDetails
             ){
         Long negocioId = userDetails.getNegocioId();
@@ -58,7 +58,7 @@ public class ServicioController {
      * @return Servicio creado en formato DTO.
      */
     @PostMapping
-    public ResponseEntity<ServicioResponseDTO> create(
+    public ResponseEntity<ServicioResponseDTO> createService(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody ServicioRequestDTO dto
     ) {

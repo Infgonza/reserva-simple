@@ -30,9 +30,7 @@ public class ServicioRequestDTO {
             message = "El color debe estar en formato hexadecimal (#FFF o #FFFFFF)")
     private String color;
 
-    @NotNull(message = "El estado activo es obligatorio")
     private Boolean activo;
 
-    @NotNull(message = "El ID del negocio es obligatorio")
     private Long negocioId;
 }

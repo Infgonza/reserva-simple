@@ -18,7 +18,7 @@ import java.util.List;
  * Solo accesible por propietarios autenticados.
  */
 @RestController
-@RequestMapping("/api/empleados")
+@RequestMapping("/api/personal")
 @RequiredArgsConstructor
 public class EmpleadoController {
 
@@ -29,7 +29,7 @@ public class EmpleadoController {
      * Obtiene todos los empleados del negocio autenticado.
      */
     @GetMapping
-    public ResponseEntity<List<UsuarioNegocioResponseDTO>> findAll(
+    public ResponseEntity<List<UsuarioNegocioResponseDTO>> getAllPersonal(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long negocioId = userDetails.getNegocioId();
@@ -53,7 +53,7 @@ public class EmpleadoController {
      * Crea un nuevo empleado para el negocio autenticado.
      */
     @PostMapping
-    public ResponseEntity<UsuarioNegocioResponseDTO> create(
+    public ResponseEntity<UsuarioNegocioResponseDTO> createPersonal(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody UsuarioNegocioRequestDTO dto
     ) {
@@ -82,7 +82,7 @@ public class EmpleadoController {
      * Verifica que pertenezca al negocio autenticado.
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(
+    public ResponseEntity<Void> deletePersonal(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long id
     ) {
