@@ -173,7 +173,7 @@ public class UsuarioNegocioService {
         }
 
         empleado.setActivo(false);
-        empleadoRepository.save(empleado);
+        empleadoRepository.delete(empleado);
     }
 
     /**

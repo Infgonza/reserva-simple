@@ -114,6 +114,6 @@ public class ServicioService {
             );
         }
         servicio.setActivo(false);
-        servicioRepository.save(servicio);
+        servicioRepository.delete(servicio);
     }
 }
