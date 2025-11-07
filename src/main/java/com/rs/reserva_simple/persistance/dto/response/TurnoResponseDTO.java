@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Data
 @AllArgsConstructor
@@ -18,8 +19,8 @@ import java.time.LocalDateTime;
 public class TurnoResponseDTO {
     private Long id;
     private LocalDate fechaTurno;
-    private Instant horaInicio;
-    private Instant horaFinal;
+    private OffsetDateTime horaInicio;
+    private OffsetDateTime horaFinal;
     private Estado estado;
     private String notas;
 

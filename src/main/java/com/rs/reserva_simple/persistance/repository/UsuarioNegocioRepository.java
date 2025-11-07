@@ -8,9 +8,12 @@ import java.util.List;
 
 @Repository
 public interface UsuarioNegocioRepository extends JpaRepository<UsuarioNegocio, Long> {
+
     List<UsuarioNegocio> findByNegocioId(Long id);
 
     boolean existsByEmailAndNegocioId(String email, Long id);
+
+    List<UsuarioNegocio> findByNegocioIdAndActivoTrue(Long negocioId);
 
 
 }
