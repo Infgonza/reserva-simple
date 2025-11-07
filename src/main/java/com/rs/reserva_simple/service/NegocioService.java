@@ -9,11 +9,13 @@ import com.rs.reserva_simple.persistance.entity.enums.RolPlataforma;
 import com.rs.reserva_simple.persistance.repository.NegocioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Servicio para operaciones CRUD de Negocios.
@@ -64,24 +66,32 @@ public class NegocioService {
      */
     @Transactional
     public NegocioResponseDTO create(NegocioRequestDTO dto) {
+
+        // 1. GENERAR SLUG a partir del nombre del negocio
+        String nombreNegocio = dto.getNombre();
+        String slugGenerado = toSlug(nombreNegocio);
+
+        // 2. VERIFICAR UNICIDAD DE EMAIL
         if (negocioRepository.findByEmail(dto.getEmail()).isPresent()) {
             throw new IllegalArgumentException(
                     "Ya existe un negocio registrado con el email: " + dto.getEmail()
             );
         }
 
-        if (negocioRepository.findBySlug(dto.getSlug()).isPresent()) {
+        // 3. CORREGIR LA VERIFICACIÓN DE SLUG para usar el valor generado
+        if (negocioRepository.findBySlug(slugGenerado).isPresent()) {
             throw new IllegalArgumentException(
-                    "Ya existe un negocio con el slug: " + dto.getSlug()
+                    "Ya existe un negocio con el slug: " + slugGenerado
             );
         }
 
         Negocio negocio = negocioMapper.toEntity(dto);
 
+        // 4. ASIGNAR EL SLUG GENERADO ANTES DE GUARDAR
+        negocio.setSlug(slugGenerado);
+
         negocio.setPassword(passwordEncoder.encode(dto.getPassword()));
-
-        negocio.setRolPlataforma(RolPlataforma.USUARIO);
-
+        negocio.setRolPlataforma(RolPlataforma.USUARIO); // Asumo que se crea con rol USUARIO
         negocio.setActivo(true);
 
         Negocio savedNegocio = negocioRepository.save(negocio);
@@ -89,34 +99,47 @@ public class NegocioService {
         return negocioMapper.toResponseDTO(savedNegocio);
     }
 
+
     /**
-     * Actualiza un negocio existente
-     * Solo actualiza campos permitidos (no cambia email ni contraseña)
+     * Convierte un texto en un slug amigable para URLs.
+     * Si el texto es nulo o vacío, genera un slug por defecto con timestamp.
      *
-     * @param id ID del negocio a actualizar
-     * @param dto Datos actualizados
-     * @return NegocioResponseDTO del negocio actualizado
-     * @throws EntityNotFoundException si no se encuentra el negocio
+     * @param text Texto a convertir
+     * @return Slug generado
      */
-    @Transactional
-    public NegocioResponseDTO update(Long id, NegocioRequestDTO dto) {
+    public static String toSlug(String text) {
+        if (text == null || text.trim().isEmpty()) {
+            return "negocio-" + System.currentTimeMillis();
+        }
+        return text.toLowerCase(Locale.ROOT)
+                .replaceAll("\\s+", "-")
+                .replaceAll("[^a-z0-9\\-]+", "")
+                .replaceAll("^-|-$", "")
+                .trim();
+    }
+
+
+    /**
+     * Actualiza el perfil del negocio usando el ID del Negocio de la sesión.
+     * @param id El ID del Negocio logueado.
+     * @param requestDTO Los nuevos datos del perfil.
+     * @return NegocioResponseDTO actualizado.
+     */
+    public NegocioResponseDTO updateNegocioProfile(Long id, NegocioRequestDTO requestDTO) {
+
+        // 1. Buscar y verificar que el Negocio existe
         Negocio negocio = negocioRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Negocio no encontrado con id: " + id
                 ));
 
-        if (!negocio.getSlug().equals(dto.getSlug()) &&
-                negocioRepository.findBySlug(dto.getSlug()).isPresent()) {
-            throw new IllegalArgumentException(
-                    "Ya existe un negocio con el slug: " + dto.getSlug()
-            );
-        }
+        negocio.setSlug(requestDTO.getSlug());
+        negocio.setDireccion(requestDTO.getDireccion());
+        negocio.setDescripcion(requestDTO.getDescripcion());
+        negocio.setEmail(requestDTO.getEmail());
 
-        negocioMapper.updateEntityFromDTO(dto, negocio);
-
-        // Hasheamos la contraseña si viene
-        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
-            negocio.setPassword(passwordEncoder.encode(dto.getPassword()));
+        if (requestDTO.getProfileImageUrl() != null) {
+            negocio.setProfileImageUrl(requestDTO.getProfileImageUrl());
         }
 
         Negocio updatedNegocio = negocioRepository.save(negocio);

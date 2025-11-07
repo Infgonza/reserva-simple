@@ -4,17 +4,18 @@ import com.rs.reserva_simple.persistance.dto.request.NegocioRequestDTO;
 import com.rs.reserva_simple.persistance.dto.response.NegocioResponseDTO;
 import com.rs.reserva_simple.security.CustomUserDetails;
 import com.rs.reserva_simple.service.NegocioService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/negocios")
+@RequestMapping("/api/negocio")
 public class NegocioController {
 
 
@@ -37,29 +38,34 @@ public class NegocioController {
     }
 
     /**
-     * Obtiene el perfil del negocio autenticado.
-     * Usa @AuthenticationPrincipal para obtener el negocio del token JWT.
+     * Obtiene el perfil/Negocio del usuario autenticado.
      */
-    @GetMapping("/me")
-    public ResponseEntity<NegocioResponseDTO> getMyProfile(
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
-        Long negocioId = userDetails.getNegocioId();
-        return ResponseEntity.ok(negocioService.findById(negocioId));
+    @GetMapping("/profile")
+    public NegocioResponseDTO getProfile() {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated() || !(authentication.getPrincipal() instanceof CustomUserDetails)) {
+            throw new RuntimeException("Usuario no autenticado.");
+        }
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long usuarioNegocioId = userDetails.getNegocioId();
+
+
+        return negocioService.findById(usuarioNegocioId);
     }
 
     /**
-     * Actualiza el perfil del negocio autenticado.
-     * Solo el propietario puede actualizar su propio negocio.
+     * Actualiza el perfil/Negocio del usuario autenticado.
      */
-    @PutMapping("/me")
-    public ResponseEntity<NegocioResponseDTO> updateMyProfile(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            @Valid @RequestBody NegocioRequestDTO dto
-    ) {
+    @PutMapping("/profile")
+    public NegocioResponseDTO updateProfile(@RequestBody NegocioRequestDTO negocioRequest) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         Long negocioId = userDetails.getNegocioId();
-        NegocioResponseDTO updated = negocioService.update(negocioId, dto);
-        return ResponseEntity.ok(updated);
+
+        return negocioService.updateNegocioProfile(negocioId, negocioRequest);
     }
 
     /**
