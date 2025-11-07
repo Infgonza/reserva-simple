@@ -41,6 +41,18 @@ public class NegocioService {
     }
 
     /**
+     * Busca un negocio por slug
+     */
+    @Transactional(readOnly = true)
+    public NegocioResponseDTO findBySlug(String slug) {
+        Negocio negocio = negocioRepository.findBySlug(slug)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Negocio no encontrado con slug: " + slug
+                ));
+        return negocioMapper.toResponseDTO(negocio);
+    }
+
+    /**
      * Busca un negocio por ID
      *
      * @param id ID del negocio

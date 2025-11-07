@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 
 @Getter
 @Setter
@@ -21,10 +22,10 @@ public class Turno extends BaseEntity{
     private LocalDate fechaTurno;
 
     @Column(name = "hora_inicio")
-    private Instant horaInicio;
+    private OffsetDateTime horaInicio;
 
     @Column(name = "hora_final")
-    private Instant horaFinal;
+    private OffsetDateTime horaFinal;
 
     @Enumerated(EnumType.STRING)
     private Estado estado;

@@ -79,4 +79,13 @@ public class NegocioController {
         negocioService.delete(negocioId);
         return ResponseEntity.noContent().build();
     }
+
+    /**
+     * Obtiene el perfil público de un negocio por su slug
+     * Este endpoint es público (no requiere autenticación)
+     */
+    @GetMapping("/profile/{slug}")
+    public ResponseEntity<NegocioResponseDTO> getProfileBySlug(@PathVariable String slug) {
+        return ResponseEntity.ok(negocioService.findBySlug(slug));
+    }
 }

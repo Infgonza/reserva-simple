@@ -36,8 +36,10 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // Endpoints públicos (sin autenticación)
-                        .requestMatchers("/api/auth/login", "/api/auth/register", "/api/negocios/profile").permitAll()
-                        .requestMatchers("/index.html", "/script.js*", "style.css", "/images").permitAll()
+                        .requestMatchers("/api/auth/login", "/api/auth/register", "/api/negocio/profile", "/api/service/**").permitAll()
+                        .requestMatchers("/api/negocio/profile/**").permitAll()
+                        .requestMatchers("/api/appointments/**").permitAll()
+                        .requestMatchers("/index.html/**", "/script.js*", "style.css", "/images/**").permitAll()
 
                         // Todos los demás endpoints requieren autenticación
                         .anyRequest().authenticated()
