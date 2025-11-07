@@ -103,4 +103,9 @@ public class ServicioController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/public/{negocioSlug}")
+    public ResponseEntity<List<ServicioResponseDTO>> findAllBySlug(@PathVariable String negocioSlug) {
+        return ResponseEntity.ok(servicioService.findAllBySlug(negocioSlug));
+    }
+
 }
