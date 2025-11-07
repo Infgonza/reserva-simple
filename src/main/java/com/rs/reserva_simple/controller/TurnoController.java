@@ -4,7 +4,6 @@ import com.rs.reserva_simple.persistance.dto.response.TurnoResponseDTO;
 import com.rs.reserva_simple.security.CustomUserDetails;
 
 import com.rs.reserva_simple.persistance.dto.request.TurnoRequestDTO;
-import com.rs.reserva_simple.persistance.dto.response.TurnoResponseDTO;
 import com.rs.reserva_simple.persistance.dto.response.basic.EmpleadoBasicDTO;
 
 import com.rs.reserva_simple.service.TurnoService;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
